@@ -19,7 +19,7 @@ export const editImage = async (imageFile: File, subjectDescription: string): Pr
     The overall composition should be clean and professional, resembling a promotional shot for a premium collectible figure. The lighting should be dramatic, highlighting the details of the statuette.`;
 
     const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash-image-preview',
+      model: 'gemini-2.5-flash-image',
       contents: {
         parts: [
           {
