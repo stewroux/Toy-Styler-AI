@@ -6,6 +6,8 @@ import ImageUploader from './components/ImageUploader';
 import LoadingSpinner from './components/LoadingSpinner';
 import GeneratedImageDisplay from './components/GeneratedImageDisplay';
 
+const MAX_DESCRIPTION_LENGTH = 100;
+
 const App: React.FC = () => {
   const [originalImageFile, setOriginalImageFile] = useState<File | null>(null);
   const [originalImageUrl, setOriginalImageUrl] = useState<string | null>(null);
@@ -18,10 +20,10 @@ const App: React.FC = () => {
     setOriginalImageFile(file);
     setGeneratedImage(null);
     setError(null);
-    const url = URL.createObjectURL(file);
-    setOriginalImageUrl(url);
-    // Revoke previous URL to prevent memory leaks
-    return () => URL.revokeObjectURL(url);
+    setOriginalImageUrl(prev => {
+      if (prev) URL.revokeObjectURL(prev);
+      return URL.createObjectURL(file);
+    });
   }, []);
 
   const handleGenerateClick = async () => {
@@ -51,12 +53,15 @@ const App: React.FC = () => {
   
   const handleReset = () => {
     setOriginalImageFile(null);
-    setOriginalImageUrl(null);
+    setOriginalImageUrl(prev => {
+      if (prev) URL.revokeObjectURL(prev);
+      return null;
+    });
     setSubjectDescription('');
     setGeneratedImage(null);
     setError(null);
     setIsLoading(false);
-  }
+  };
 
   const isButtonDisabled = isLoading || !originalImageFile || !subjectDescription.trim();
 
@@ -82,9 +87,13 @@ const App: React.FC = () => {
                   value={subjectDescription}
                   onChange={(e) => setSubjectDescription(e.target.value)}
                   placeholder="例：赤いマントのスーパーヒーロー"
+                  maxLength={MAX_DESCRIPTION_LENGTH}
                   className="w-full px-3 py-2 bg-base-300 border border-base-300 rounded-md shadow-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-brand-primary"
                   disabled={isLoading}
                 />
+                <p className="text-xs text-text-secondary mt-1 text-right">
+                  {subjectDescription.length} / {MAX_DESCRIPTION_LENGTH}
+                </p>
               </div>
             </div>
           </div>
