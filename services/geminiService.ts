@@ -61,7 +61,9 @@ export const editImage = async (imageFile: File, subjectDescription: string): Pr
     return { url: imageUrl, text };
 
   } catch (error) {
-    console.error("Error editing image with Gemini API:", error);
+    if (import.meta.env.DEV) {
+      console.error("Error editing image with Gemini API:", error);
+    }
     if (error instanceof Error) {
         return Promise.reject(new Error(`画像の生成に失敗しました: ${error.message}`));
     }
