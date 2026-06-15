@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { GeneratedImage } from './types';
 import { editImage } from './services/geminiService';
 import Header from './components/Header';
@@ -14,14 +14,24 @@ const App: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  const handleImageUpload = useCallback((file: File) => {
+  // Revoke object URL on change to prevent memory leaks
+  useEffect(() => {
+    return () => {
+      if (originalImageUrl) {
+        URL.revokeObjectURL(originalImageUrl);
+      }
+    };
+  }, [originalImageUrl]);
+
+  const handleImageUpload = useCallback((file: File, validationError?: string) => {
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
     setOriginalImageFile(file);
     setGeneratedImage(null);
     setError(null);
-    const url = URL.createObjectURL(file);
-    setOriginalImageUrl(url);
-    // Revoke previous URL to prevent memory leaks
-    return () => URL.revokeObjectURL(url);
+    setOriginalImageUrl(URL.createObjectURL(file));
   }, []);
 
   const handleGenerateClick = async () => {
@@ -56,7 +66,7 @@ const App: React.FC = () => {
     setGeneratedImage(null);
     setError(null);
     setIsLoading(false);
-  }
+  };
 
   const isButtonDisabled = isLoading || !originalImageFile || !subjectDescription.trim();
 

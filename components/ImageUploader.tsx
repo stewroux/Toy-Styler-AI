@@ -1,16 +1,32 @@
 import React, { useState, useCallback } from 'react';
 
+const ALLOWED_TYPES = ['image/png', 'image/jpeg', 'image/webp'];
+const MAX_FILE_SIZE_MB = 10;
+const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
+
 interface ImageUploaderProps {
-  onImageUpload: (file: File) => void;
+  onImageUpload: (file: File, error?: string) => void;
   previewUrl: string | null;
 }
 
 const ImageUploader: React.FC<ImageUploaderProps> = ({ onImageUpload, previewUrl }) => {
   const [isDragging, setIsDragging] = useState(false);
 
+  const validateAndUpload = useCallback((file: File) => {
+    if (!ALLOWED_TYPES.includes(file.type)) {
+      onImageUpload(file, 'PNG、JPG、WEBP 形式のファイルをアップロードしてください。');
+      return;
+    }
+    if (file.size > MAX_FILE_SIZE_BYTES) {
+      onImageUpload(file, `ファイルサイズは ${MAX_FILE_SIZE_MB}MB 以下にしてください。`);
+      return;
+    }
+    onImageUpload(file);
+  }, [onImageUpload]);
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      onImageUpload(e.target.files[0]);
+      validateAndUpload(e.target.files[0]);
     }
   };
 
@@ -36,9 +52,9 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ onImageUpload, previewUrl
     e.stopPropagation();
     setIsDragging(false);
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      onImageUpload(e.dataTransfer.files[0]);
+      validateAndUpload(e.dataTransfer.files[0]);
     }
-  }, [onImageUpload]);
+  }, [validateAndUpload]);
 
   return (
     <div className="w-full">
@@ -56,7 +72,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({ onImageUpload, previewUrl
           <div className="flex flex-col items-center justify-center pt-5 pb-6 text-text-secondary">
              <svg className="w-10 h-10 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
             <p className="mb-2 text-sm"><span className="font-semibold">クリックしてアップロード</span>またはドラッグ＆ドロップ</p>
-            <p className="text-xs">PNG, JPG, または WEBP</p>
+            <p className="text-xs">PNG, JPG, または WEBP（最大 {MAX_FILE_SIZE_MB}MB）</p>
           </div>
         )}
         <input id="image-upload" type="file" className="hidden" accept="image/png, image/jpeg, image/webp" onChange={handleFileChange} />
