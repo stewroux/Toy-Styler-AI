@@ -1,20 +1,35 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# Toy Styler AI
 
-# Run and deploy your AI Studio app
+Restyle toy photos with AI, built with React + Vite and the Google Gemini API.
 
-This contains everything you need to run your app locally.
+## Requirements
 
-View your app in AI Studio: https://ai.studio/apps/drive/1ACkc2CPorBvf4qD04rK3gmtIz4BAxA5Y
+- **Node.js** >= 20
+- A **Google Gemini API key** — get one at <https://aistudio.google.com/apikey>
 
-## Run Locally
-
-**Prerequisites:**  Node.js
-
+## Setup
 
 1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+
+   ```bash
+   npm install
+   ```
+
+2. Configure your API key:
+
+   ```bash
+   cp .env.example .env.local
+   # then edit .env.local and set GEMINI_API_KEY
+   ```
+
+## Run
+
+```bash
+npm run dev
+```
+
+The app starts a local Vite dev server (default <http://localhost:3000>).
+
+## License
+
+This project is licensed under the MIT License — see [LICENSE](./LICENSE).
